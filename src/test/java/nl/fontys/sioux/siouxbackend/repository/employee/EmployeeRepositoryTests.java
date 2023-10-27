@@ -4,15 +4,12 @@ import jakarta.persistence.EntityManager;
 import nl.fontys.sioux.siouxbackend.domain.Position;
 import nl.fontys.sioux.siouxbackend.repository.EmployeeRepository;
 import nl.fontys.sioux.siouxbackend.repository.entity.EmployeeEntity;
-import org.junit.ClassRule;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.testcontainers.containers.MySQLContainer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
