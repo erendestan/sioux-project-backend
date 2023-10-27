@@ -5,5 +5,5 @@ import nl.fontys.sioux.siouxbackend.domain.Employee;
 import java.util.Optional;
 
 public interface GetEmployeeUseCase {
-    Optional<Employee> getEmployee(long employeeID);
+    Optional<Employee> getEmployee(Long employeeID);
 }
