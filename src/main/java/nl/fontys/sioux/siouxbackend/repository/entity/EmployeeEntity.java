@@ -25,15 +25,18 @@ public class EmployeeEntity {
 
     @NotBlank
     @Column(name = "first_name")
+    @Length(min = 2, max = 50)
     private String firstName;
 
     @NotBlank
     @Column(name = "last_name")
+    @Length(min = 2, max = 50)
     private String lastName;
 
     @NotBlank
     @Email
     @Column(name = "email")
+    @Length(min = 2, max = 50)
     private String email;
 
     @NotBlank
