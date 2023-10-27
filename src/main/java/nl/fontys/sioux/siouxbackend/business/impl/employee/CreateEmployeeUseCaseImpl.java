@@ -2,7 +2,7 @@ package nl.fontys.sioux.siouxbackend.business.impl.employee;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import nl.fontys.sioux.siouxbackend.business.exception.InvalidUserException;
+import nl.fontys.sioux.siouxbackend.business.exception.InvalidEmployeeException;
 import nl.fontys.sioux.siouxbackend.business.interf.employee.CreateEmployeeUseCase;
 import nl.fontys.sioux.siouxbackend.domain.request.employee.CreateEmployeeRequest;
 import nl.fontys.sioux.siouxbackend.domain.response.employee.CreateEmployeeResponse;
@@ -19,7 +19,7 @@ public class CreateEmployeeUseCaseImpl implements CreateEmployeeUseCase {
     @Override
     public CreateEmployeeResponse createEmployee(CreateEmployeeRequest request){
         if(employeeRepository.existsByEmail(request.getEmail())){
-            throw new InvalidUserException("EMAIL_DUPLICATED");
+            throw new InvalidEmployeeException("EMAIL_DUPLICATED");
         }
 
         EmployeeEntity newEmployee = EmployeeEntity.builder()

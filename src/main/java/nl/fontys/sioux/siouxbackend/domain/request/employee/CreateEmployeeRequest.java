@@ -16,13 +16,16 @@ import org.hibernate.validator.constraints.Length;
 @AllArgsConstructor
 public class CreateEmployeeRequest {
     @NotBlank
+    @Length(min = 2, max = 50)
     private String firstName;
 
     @NotBlank
+    @Length(min = 2, max = 50)
     private String lastName;
 
     @NotBlank
     @Email
+    @Length(min = 2, max = 50)
     private String email;
 
     @NotBlank

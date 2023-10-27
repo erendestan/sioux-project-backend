@@ -3,12 +3,12 @@ package nl.fontys.sioux.siouxbackend.business.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-public class InvalidUserException extends ResponseStatusException {
-    public InvalidUserException() {
-        super(HttpStatus.BAD_REQUEST, "COUNTRY_INVALID");
+public class InvalidEmployeeException extends ResponseStatusException {
+    public InvalidEmployeeException() {
+        super(HttpStatus.BAD_REQUEST, "EMPLOYEE_INVALID");
     }
 
-    public InvalidUserException(String errorCode) {
+    public InvalidEmployeeException(String errorCode) {
         super(HttpStatus.BAD_REQUEST, errorCode);
     }
 }

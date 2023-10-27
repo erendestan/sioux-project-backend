@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import nl.fontys.sioux.siouxbackend.domain.Position;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.validator.constraints.Length;
 
 @Builder
@@ -17,6 +18,7 @@ import org.hibernate.validator.constraints.Length;
 @NoArgsConstructor
 @Entity
 @Table(name = "employees")
+@DynamicUpdate
 public class EmployeeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
