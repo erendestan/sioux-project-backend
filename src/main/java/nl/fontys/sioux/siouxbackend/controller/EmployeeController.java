@@ -25,6 +25,7 @@ public class EmployeeController {
     private final GetEmployeesUseCase getEmployeesUseCase;
     private final GetEmployeeUseCase getEmployeeUseCase;
     private final UpdateEmployeeUseCase updateEmployeeUseCase;
+    private final FilterEmployeesUseCase filterEmployeesUseCase;
 
     @PostMapping()
     public ResponseEntity<CreateEmployeeResponse> createEmployee(@RequestBody @Valid CreateEmployeeRequest request) {
@@ -45,6 +46,12 @@ public class EmployeeController {
     public ResponseEntity<List<Employee>> getAllEmployees(){
         GetEmployeesResponse response = getEmployeesUseCase.getAllEmployees();
         return ResponseEntity.ok().body(response.getEmployees());
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<Employee>> filterEmployees(@RequestParam(name = "params") String parameters) {
+        List<Employee> employees = filterEmployeesUseCase.filterEmployees(parameters);
+        return ResponseEntity.ok().body(employees);
     }
 
     @PutMapping("{id}")
