@@ -25,7 +25,6 @@ public class EmployeeController {
     private final GetEmployeesUseCase getEmployeesUseCase;
     private final GetEmployeeUseCase getEmployeeUseCase;
     private final UpdateEmployeeUseCase updateEmployeeUseCase;
-    private final DeleteEmployeeUseCase deleteEmployeeUseCase;
 
     @PostMapping()
     public ResponseEntity<CreateEmployeeResponse> createEmployee(@RequestBody @Valid CreateEmployeeRequest request) {
@@ -53,13 +52,6 @@ public class EmployeeController {
         request.setId(id);
 
         updateEmployeeUseCase.updateEmployee(request);
-
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("{id")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id){
-        deleteEmployeeUseCase.deleteEmployee(id);
 
         return ResponseEntity.noContent().build();
     }

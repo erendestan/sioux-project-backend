@@ -16,26 +16,20 @@ import org.hibernate.validator.constraints.Length;
 @NoArgsConstructor
 public class UpdateEmployeeRequest {
     private Long id;
-    @NotBlank
     @Length(min = 2, max = 50)
     private String firstName;
 
-    @NotBlank
     @Length(min = 2, max = 50)
     private String lastName;
 
-    @NotBlank
     @Email
     @Length(min = 2, max = 50)
     private String email;
 
-    @NotBlank
     @Length(min = 2)
     private String password;
 
-    @NotNull
     private Position position;
 
-    @NotNull
     private Boolean active;
 }
