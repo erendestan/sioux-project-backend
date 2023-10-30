@@ -12,7 +12,13 @@ import nl.fontys.sioux.siouxbackend.domain.response.employee.GetEmployeesRespons
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +31,7 @@ public class EmployeeController {
     private final GetEmployeesUseCase getEmployeesUseCase;
     private final GetEmployeeUseCase getEmployeeUseCase;
     private final UpdateEmployeeUseCase updateEmployeeUseCase;
+    private final CreateEmployeesFromCsvUseCase createEmployeesFromCsvUseCase;
 
     @PostMapping()
     public ResponseEntity<CreateEmployeeResponse> createEmployee(@RequestBody @Valid CreateEmployeeRequest request) {
@@ -52,6 +59,28 @@ public class EmployeeController {
         request.setId(id);
 
         updateEmployeeUseCase.updateEmployee(request);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<Void> createEmployeesFromCsv(@RequestParam("file") MultipartFile file){
+        try{
+            File tempFile = File.createTempFile("temp", ".csv");
+
+            try (var inputStream = file.getInputStream()) {
+                Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            Path tempFilePath = tempFile.toPath();
+
+            createEmployeesFromCsvUseCase.readCsvData(tempFilePath);
+
+            Files.delete(tempFilePath);
+
+        }catch (IOException e){
+            // handle exception
+        }
 
         return ResponseEntity.noContent().build();
     }
