@@ -25,13 +25,14 @@ public class UpdateEmployeeUseCaseImpl implements UpdateEmployeeUseCase {
             throw new InvalidEmployeeException("EMPLOYEE_ID_INVALID");
         }
 
-        if(employeeRepository.existsByEmail(request.getEmail())){
-            throw new EmailAlreadyExistsException();
-        }
-
         EmployeeEntity foundEmployee = employeeOptional.get();
 
-        if(request.getEmail() != null){ foundEmployee.setEmail(request.getEmail()); }
+        if(!request.getEmail().equals(foundEmployee.getEmail())){
+            if(employeeRepository.existsByEmail(request.getEmail())){
+                throw new EmailAlreadyExistsException();
+            }
+        }
+        foundEmployee.setEmail(request.getEmail());
 
         if(request.getActive() != null){ foundEmployee.setActive(request.getActive()); }
 
