@@ -19,7 +19,7 @@ public class GetEmployeeUseCaseImpl implements GetEmployeeUseCase {
     @Transactional
     @Override
     public Optional<Employee> getEmployee(Long employeeID){
-        if(employeeRepository.existsById(employeeID)){
+        if(!employeeRepository.existsById(employeeID)){
             throw new InvalidEmployeeException("USER_NOT_FOUND");
         }
 
