@@ -1,9 +1,9 @@
 package nl.fontys.sioux.siouxbackend.business.interf.employee;
 
-import org.springframework.web.multipart.MultipartFile;
+import nl.fontys.sioux.siouxbackend.domain.response.employee.CreateEmployeesFromCsvResponse;
 
 import java.nio.file.Path;
 
 public interface CreateEmployeesFromCsvUseCase {
-    void readCsvData(Path path);
+    CreateEmployeesFromCsvResponse readCsvData(Path path);
 }

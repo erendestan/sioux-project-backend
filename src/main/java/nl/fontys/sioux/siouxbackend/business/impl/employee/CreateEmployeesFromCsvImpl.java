@@ -3,15 +3,14 @@ package nl.fontys.sioux.siouxbackend.business.impl.employee;
 import com.opencsv.CSVReader;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import nl.fontys.sioux.siouxbackend.business.exception.InvalidEmployeeException;
+import nl.fontys.sioux.siouxbackend.business.exception.ImportCSVException;
 import nl.fontys.sioux.siouxbackend.business.interf.employee.CreateEmployeesFromCsvUseCase;
 import nl.fontys.sioux.siouxbackend.domain.Position;
+import nl.fontys.sioux.siouxbackend.domain.response.employee.CreateEmployeesFromCsvResponse;
 import nl.fontys.sioux.siouxbackend.repository.EmployeeRepository;
 import nl.fontys.sioux.siouxbackend.repository.entity.EmployeeEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -21,12 +20,28 @@ import java.nio.file.Path;
 @Service
 public class CreateEmployeesFromCsvImpl implements CreateEmployeesFromCsvUseCase {
     private final EmployeeRepository employeeRepository;
+    @Transactional
     @Override
-    public void readCsvData(Path path) {
+    public CreateEmployeesFromCsvResponse readCsvData(Path path) {
+        Long count = 0L;
         try(Reader reader = Files.newBufferedReader(path)) {
             try (CSVReader csvReader = new CSVReader(reader)) {
 
-                csvReader.readNext();
+                String[] headers = csvReader.readNext();
+                String[] headerNames = {"first_name", "last_name", "email", "password", "position", "active"};
+                if(headers == null){
+                    throw new IOException("FILE_EMPTY");
+                }
+
+                if(headers.length != headerNames.length){
+                    throw new IOException("INCOMPLETE_DATA");
+                }
+
+                for(int i = 0 ; i < headerNames.length ; i ++) {
+                    if(!headers[i].equals(headerNames[i])) {
+                        throw new IOException("INVALID_DATA_FORMAT");
+                    }
+                }
 
                 String[] line;
                 while ((line = csvReader.readNext()) != null) {
@@ -43,17 +58,18 @@ public class CreateEmployeesFromCsvImpl implements CreateEmployeesFromCsvUseCase
                             .active(Boolean.parseBoolean(line[5]))
                             .build();
 
-                    if(employeeRepository.existsByEmail(newEmployee.getEmail())){
-                        throw new InvalidEmployeeException("EMAIL_DUPLICATED");
+                    if(!employeeRepository.existsByEmail(newEmployee.getEmail())){
+                        employeeRepository.save(newEmployee);
+                        count++;
                     }
-
-                    employeeRepository.save(newEmployee);
                 }
             }
         }
         catch (IOException e) {
-            // do sth
+            throw new ImportCSVException(e.getMessage());
         }
-
+        return CreateEmployeesFromCsvResponse.builder()
+                .count(count)
+                .build();
     }
 }

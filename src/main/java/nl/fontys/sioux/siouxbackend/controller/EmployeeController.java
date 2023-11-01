@@ -8,6 +8,7 @@ import nl.fontys.sioux.siouxbackend.domain.Employee;
 import nl.fontys.sioux.siouxbackend.domain.request.employee.CreateEmployeeRequest;
 import nl.fontys.sioux.siouxbackend.domain.request.employee.UpdateEmployeeRequest;
 import nl.fontys.sioux.siouxbackend.domain.response.employee.CreateEmployeeResponse;
+import nl.fontys.sioux.siouxbackend.domain.response.employee.CreateEmployeesFromCsvResponse;
 import nl.fontys.sioux.siouxbackend.domain.response.employee.GetEmployeesResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,8 +65,9 @@ public class EmployeeController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<Void> createEmployeesFromCsv(@RequestParam("file") MultipartFile file){
-        try{
+    public ResponseEntity<CreateEmployeesFromCsvResponse> createEmployeesFromCsv(@RequestParam("file") MultipartFile file){
+        CreateEmployeesFromCsvResponse response = new CreateEmployeesFromCsvResponse();
+        try {
             File tempFile = File.createTempFile("temp", ".csv");
 
             try (var inputStream = file.getInputStream()) {
@@ -74,14 +76,15 @@ public class EmployeeController {
 
             Path tempFilePath = tempFile.toPath();
 
-            createEmployeesFromCsvUseCase.readCsvData(tempFilePath);
+            response = createEmployeesFromCsvUseCase.readCsvData(tempFilePath);
 
             Files.delete(tempFilePath);
 
-        }catch (IOException e){
-            // handle exception
+        } catch (IOException e){
+            return ResponseEntity.badRequest().build();
         }
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok()
+                .body(CreateEmployeesFromCsvResponse.builder().count(response.getCount()).build());
     }
 }
