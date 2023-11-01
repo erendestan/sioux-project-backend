@@ -61,7 +61,7 @@ public class EmployeeController {
 
         updateEmployeeUseCase.updateEmployee(request);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/upload")

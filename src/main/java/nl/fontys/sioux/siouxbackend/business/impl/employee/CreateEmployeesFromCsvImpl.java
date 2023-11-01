@@ -10,7 +10,9 @@ import nl.fontys.sioux.siouxbackend.domain.response.employee.CreateEmployeesFrom
 import nl.fontys.sioux.siouxbackend.repository.EmployeeRepository;
 import nl.fontys.sioux.siouxbackend.repository.entity.EmployeeEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
