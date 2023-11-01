@@ -43,11 +43,9 @@ public class CreateEmployeesFromCsvImpl implements CreateEmployeesFromCsvUseCase
                             .active(Boolean.parseBoolean(line[5]))
                             .build();
 
-                    if(employeeRepository.existsByEmail(newEmployee.getEmail())){
-                        throw new InvalidEmployeeException("EMAIL_DUPLICATED");
+                    if(!employeeRepository.existsByEmail(newEmployee.getEmail())){
+                        employeeRepository.save(newEmployee);
                     }
-
-                    employeeRepository.save(newEmployee);
                 }
             }
         }

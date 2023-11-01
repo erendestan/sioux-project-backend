@@ -60,7 +60,7 @@ public class EmployeeController {
 
         updateEmployeeUseCase.updateEmployee(request);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/upload")
@@ -79,9 +79,9 @@ public class EmployeeController {
             Files.delete(tempFilePath);
 
         }catch (IOException e){
-            // handle exception
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }
