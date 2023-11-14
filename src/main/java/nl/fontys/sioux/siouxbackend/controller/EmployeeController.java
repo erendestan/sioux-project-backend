@@ -8,11 +8,18 @@ import nl.fontys.sioux.siouxbackend.domain.Employee;
 import nl.fontys.sioux.siouxbackend.domain.request.employee.CreateEmployeeRequest;
 import nl.fontys.sioux.siouxbackend.domain.request.employee.UpdateEmployeeRequest;
 import nl.fontys.sioux.siouxbackend.domain.response.employee.CreateEmployeeResponse;
+import nl.fontys.sioux.siouxbackend.domain.response.employee.CreateEmployeesFromCsvResponse;
 import nl.fontys.sioux.siouxbackend.domain.response.employee.GetEmployeesResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +32,7 @@ public class EmployeeController {
     private final GetEmployeesUseCase getEmployeesUseCase;
     private final GetEmployeeUseCase getEmployeeUseCase;
     private final UpdateEmployeeUseCase updateEmployeeUseCase;
-    private final FilterEmployeesUseCase filterEmployeesUseCase;
+    private final CreateEmployeesFromCsvUseCase createEmployeesFromCsvUseCase;
 
     @PostMapping()
     public ResponseEntity<CreateEmployeeResponse> createEmployee(@RequestBody @Valid CreateEmployeeRequest request) {
@@ -60,6 +67,30 @@ public class EmployeeController {
 
         updateEmployeeUseCase.updateEmployee(request);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<CreateEmployeesFromCsvResponse> createEmployeesFromCsv(@RequestParam("file") MultipartFile file){
+        CreateEmployeesFromCsvResponse response = new CreateEmployeesFromCsvResponse();
+        try {
+            File tempFile = File.createTempFile("temp", ".csv");
+
+            try (var inputStream = file.getInputStream()) {
+                Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            Path tempFilePath = tempFile.toPath();
+
+            response = createEmployeesFromCsvUseCase.readCsvData(tempFilePath);
+
+            Files.delete(tempFilePath);
+
+        } catch (IOException e){
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok()
+                .body(CreateEmployeesFromCsvResponse.builder().count(response.getCount()).build());
     }
 }
