@@ -12,6 +12,8 @@ import nl.fontys.sioux.siouxbackend.domain.Position;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.validator.constraints.Length;
 
+import java.util.List;
+
 @Builder
 @Data
 @AllArgsConstructor
@@ -54,4 +56,12 @@ public class EmployeeEntity {
     @NotNull
     @Column(name = "active")
     private Boolean active;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name="appointment_assignment",
+            joinColumns = @JoinColumn(name = "employee_id"),
+            inverseJoinColumns = @JoinColumn(name = "appointment_id")
+    )
+    private List<AppointmentEntity> appointments;
 }
