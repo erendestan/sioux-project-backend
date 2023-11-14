@@ -55,6 +55,12 @@ public class EmployeeController {
         return ResponseEntity.ok().body(response.getEmployees());
     }
 
+    @GetMapping("/filter")
+    public ResponseEntity<List<Employee>> filterEmployees(@RequestParam(name = "params") String parameters) {
+        List<Employee> employees = filterEmployeesUseCase.filterEmployees(parameters);
+        return ResponseEntity.ok().body(employees);
+    }
+
     @PutMapping("{id}")
     public ResponseEntity<Void> updateEmployee(@PathVariable("id") long id, @RequestBody @Valid UpdateEmployeeRequest request){
         request.setId(id);
