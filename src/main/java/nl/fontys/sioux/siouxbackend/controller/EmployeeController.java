@@ -62,7 +62,7 @@ public class EmployeeController {
 //    }
 
     @PutMapping("{id}")
-    public ResponseEntity<Void> updateEmployee(@PathVariable("id") long id, @RequestBody @Valid UpdateEmployeeRequest request){
+    public ResponseEntity<Void> updateEmployee(@PathVariable("id") Long id, @RequestBody @Valid UpdateEmployeeRequest request){
         request.setId(id);
 
         updateEmployeeUseCase.updateEmployee(request);

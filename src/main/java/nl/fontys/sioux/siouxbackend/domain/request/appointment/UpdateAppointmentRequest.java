@@ -1,7 +1,6 @@
 package nl.fontys.sioux.siouxbackend.domain.request.appointment;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,23 +14,21 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateAppointmentRequest {
-    @NotBlank
+public class UpdateAppointmentRequest {
+    @NotNull
+    private Long appointmentID;
+
     private String clientName;
 
     private List<Long> employeeIDs;
 
-    @NotBlank
     @Email
     private String clientEmail;
 
-    @NotBlank
     private String clientPhoneNumber;
 
-    @NotNull
     private Date startTime;
 
-    @NotNull
     private Date endTime;
 
     private String location;
