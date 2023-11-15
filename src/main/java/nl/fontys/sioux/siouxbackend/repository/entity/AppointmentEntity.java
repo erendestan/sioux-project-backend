@@ -1,6 +1,7 @@
 package nl.fontys.sioux.siouxbackend.repository.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,7 @@ public class AppointmentEntity {
     private List<EmployeeEntity> employees;
 
     @NotBlank
+    @Email
     @Column(name = "client_email")
     private String clientEmail;
 
@@ -54,7 +56,6 @@ public class AppointmentEntity {
     @Column(name = "end_time")
     private Date endTime;
 
-    @NotBlank
     @Column(name = "location")
     private String location;
 
@@ -62,6 +63,6 @@ public class AppointmentEntity {
     private String description;
 
     @Column(name = "license_plate")
-    private String licensePlate; // optional?
+    private String licensePlate;
 
 }
