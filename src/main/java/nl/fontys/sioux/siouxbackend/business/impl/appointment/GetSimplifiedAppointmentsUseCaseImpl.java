@@ -1,6 +1,7 @@
 package nl.fontys.sioux.siouxbackend.business.impl.appointment;
 
 import lombok.AllArgsConstructor;
+import nl.fontys.sioux.siouxbackend.business.exception.InvalidAppointmentException;
 import nl.fontys.sioux.siouxbackend.business.exception.InvalidEmployeeException;
 import nl.fontys.sioux.siouxbackend.business.impl.employee.EmployeeConverter;
 import nl.fontys.sioux.siouxbackend.business.interf.appointment.GetSimplifiedAppointmentsUseCase;
@@ -37,7 +38,7 @@ public class GetSimplifiedAppointmentsUseCaseImpl implements GetSimplifiedAppoin
         for(Optional<AppointmentEntity> appointment: appointments){
 
             if(appointment.isEmpty()){
-                // throw exception
+                throw new InvalidAppointmentException("APPOINTMENT_DOESNT_EXIST");
             }
             AppointmentEntity foundAppointment = appointment.get();
 
