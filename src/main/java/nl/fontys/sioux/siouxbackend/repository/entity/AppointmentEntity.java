@@ -31,7 +31,7 @@ public class AppointmentEntity {
     @Column(name = "client_name")
     private String clientName;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
             name = "appointment_assignment",
             joinColumns = @JoinColumn(name = "appointment_id"),
