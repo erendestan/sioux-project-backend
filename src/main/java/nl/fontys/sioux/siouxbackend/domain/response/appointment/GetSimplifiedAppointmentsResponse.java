@@ -3,6 +3,7 @@ package nl.fontys.sioux.siouxbackend.domain.response.appointment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import nl.fontys.sioux.siouxbackend.domain.DTO.GetAppointmentEmployeeDTO;
 import nl.fontys.sioux.siouxbackend.domain.Employee;
 
 import java.util.Date;
@@ -16,5 +17,5 @@ public class GetSimplifiedAppointmentsResponse {
     private String clientName;
     private Date startTime;
     private Date endTime;
-    private List<Employee> employees;
+    private List<GetAppointmentEmployeeDTO> employees;
 }

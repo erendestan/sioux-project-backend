@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import nl.fontys.sioux.siouxbackend.business.exception.InvalidEmployeeException;
 import nl.fontys.sioux.siouxbackend.business.impl.employee.EmployeeConverter;
 import nl.fontys.sioux.siouxbackend.business.interf.appointment.GetSimplifiedAppointmentsUseCase;
+import nl.fontys.sioux.siouxbackend.domain.DTO.GetAppointmentEmployeeDTO;
 import nl.fontys.sioux.siouxbackend.domain.Employee;
 import nl.fontys.sioux.siouxbackend.domain.request.appointment.GetSimplifiedAppointmentsRequest;
 import nl.fontys.sioux.siouxbackend.domain.response.appointment.GetSimplifiedAppointmentsResponse;
@@ -44,7 +45,9 @@ public class GetSimplifiedAppointmentsUseCaseImpl implements GetSimplifiedAppoin
                     .map(EmployeeConverter::convert)
                     .toList();
 
-            response.add(new GetSimplifiedAppointmentsResponse(foundAppointment.getId(), foundAppointment.getClientName(), foundAppointment.getStartTime(), foundAppointment.getEndTime(), employees));
+            List<GetAppointmentEmployeeDTO> employeeDTOS = employees.stream().map(employee -> new GetAppointmentEmployeeDTO(employee.getId(), employee.getFirstName(), employee.getLastName())).toList();
+
+            response.add(new GetSimplifiedAppointmentsResponse(foundAppointment.getId(), foundAppointment.getClientName(), foundAppointment.getStartTime(), foundAppointment.getEndTime(), employeeDTOS));
         }
 
         return response;

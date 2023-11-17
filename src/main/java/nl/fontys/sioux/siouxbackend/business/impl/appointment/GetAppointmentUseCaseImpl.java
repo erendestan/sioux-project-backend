@@ -3,6 +3,7 @@ package nl.fontys.sioux.siouxbackend.business.impl.appointment;
 import lombok.AllArgsConstructor;
 import nl.fontys.sioux.siouxbackend.business.impl.employee.EmployeeConverter;
 import nl.fontys.sioux.siouxbackend.business.interf.appointment.GetAppointmentUseCase;
+import nl.fontys.sioux.siouxbackend.domain.DTO.GetAppointmentEmployeeDTO;
 import nl.fontys.sioux.siouxbackend.domain.Employee;
 import nl.fontys.sioux.siouxbackend.domain.response.appointment.GetAppointmentResponse;
 import nl.fontys.sioux.siouxbackend.repository.AppointmentRepository;
@@ -30,6 +31,10 @@ public class GetAppointmentUseCaseImpl implements GetAppointmentUseCase {
 
         AppointmentEntity appointment = optionalAppointment.get();
 
+        List<Employee> employees = appointment.getEmployees().stream().map(EmployeeConverter::convert).toList();
+
+        List<GetAppointmentEmployeeDTO> employeeDTOS = employees.stream().map(employee -> new GetAppointmentEmployeeDTO(employee.getId(), employee.getFirstName(), employee.getLastName())).toList();
+
         GetAppointmentResponse response = GetAppointmentResponse.builder()
                 .clientName(appointment.getClientName())
                 .clientPhoneNumber(appointment.getClientPhoneNumber())
@@ -38,7 +43,7 @@ public class GetAppointmentUseCaseImpl implements GetAppointmentUseCase {
                 .licensePlate(appointment.getLicensePlate())
                 .endTime(appointment.getEndTime())
                 .startTime(appointment.getStartTime())
-                .employees(appointment.getEmployees().stream().map(EmployeeConverter::convert).toList())
+                .employees(employeeDTOS)
                 .location(appointment.getLocation())
                 .build();
 

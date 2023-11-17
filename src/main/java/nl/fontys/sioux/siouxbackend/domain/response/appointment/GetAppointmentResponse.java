@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import nl.fontys.sioux.siouxbackend.domain.DTO.GetAppointmentEmployeeDTO;
 import nl.fontys.sioux.siouxbackend.domain.Employee;
 import nl.fontys.sioux.siouxbackend.repository.entity.EmployeeEntity;
 
@@ -19,7 +20,7 @@ import java.util.List;
 public class GetAppointmentResponse {
     private String clientName;
 
-    private List<Employee> employees;
+    private List<GetAppointmentEmployeeDTO> employees;
 
     private String clientEmail;
 
