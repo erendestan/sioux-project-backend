@@ -1,5 +1,6 @@
 package nl.fontys.sioux.siouxbackend.repository.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -50,10 +51,12 @@ public class AppointmentEntity {
 
     @NotNull
     @Column(name = "start_time")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS", timezone = "Europe/Amsterdam")
     private Date startTime;
 
     @NotNull
     @Column(name = "end_time")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS", timezone = "Europe/Amsterdam")
     private Date endTime;
 
     @Column(name = "location")
