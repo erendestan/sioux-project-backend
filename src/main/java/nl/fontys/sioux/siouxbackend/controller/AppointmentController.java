@@ -1,5 +1,6 @@
 package nl.fontys.sioux.siouxbackend.controller;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import nl.fontys.sioux.siouxbackend.business.interf.appointment.*;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequestMapping("/appointment")
 @RequiredArgsConstructor
 @CrossOrigin
+@RolesAllowed("Secretary")
 public class AppointmentController {
     private final CreateAppointmentUseCase createAppointmentUseCase;
     private final UpdateAppointmentUseCase updateAppointmentUseCase;

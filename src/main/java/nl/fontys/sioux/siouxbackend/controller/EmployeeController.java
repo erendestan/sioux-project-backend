@@ -1,5 +1,6 @@
 package nl.fontys.sioux.siouxbackend.controller;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import nl.fontys.sioux.siouxbackend.business.exception.InvalidEmployeeException;
@@ -27,6 +28,7 @@ import java.util.Optional;
 @RequestMapping("/employee")
 @RequiredArgsConstructor
 @CrossOrigin
+@RolesAllowed("Admin")
 public class EmployeeController {
     private final CreateEmployeeUseCase createEmployeeUseCase;
     private final GetEmployeesUseCase getEmployeesUseCase;
