@@ -8,12 +8,14 @@ import nl.fontys.sioux.siouxbackend.domain.request.employee.CreateEmployeeReques
 import nl.fontys.sioux.siouxbackend.domain.response.employee.CreateEmployeeResponse;
 import nl.fontys.sioux.siouxbackend.repository.EmployeeRepository;
 import nl.fontys.sioux.siouxbackend.repository.entity.EmployeeEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @AllArgsConstructor
 public class CreateEmployeeUseCaseImpl implements CreateEmployeeUseCase {
     private final EmployeeRepository employeeRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     @Override
@@ -22,11 +24,13 @@ public class CreateEmployeeUseCaseImpl implements CreateEmployeeUseCase {
             throw new InvalidEmployeeException("EMAIL_DUPLICATED");
         }
 
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+
         EmployeeEntity newEmployee = EmployeeEntity.builder()
                 .email(request.getEmail())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .password(request.getPassword())
+                .password(encodedPassword)
                 .position(request.getPosition())
                 .active(true)
                 .build();
