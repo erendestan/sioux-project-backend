@@ -75,11 +75,11 @@ public class UpdateAppointmentUseCaseImpl implements UpdateAppointmentUseCase {
         if(request.getEndTime() != null) { appointment.setEndTime(request.getEndTime()); }
 
         if(!request.getEmployeeIDs().isEmpty()) {
-            List<Optional<EmployeeEntity>> employeesOptional = request.getEmployeeIDs()
+            List<EmployeeEntity> employees = request.getEmployeeIDs()
                     .stream()
                     .map(employeeRepository::findById)
-                    .toList();
-            List<EmployeeEntity> employees = employeesOptional.stream().flatMap(Optional::stream).collect(Collectors.toList());
+                    .flatMap(Optional::stream)
+                    .collect(Collectors.toList());
             appointment.setEmployees(employees);
         }
 

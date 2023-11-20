@@ -14,6 +14,8 @@ import nl.fontys.sioux.siouxbackend.repository.entity.EmployeeEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -44,8 +46,9 @@ public class CreateAppointmentUseCaseImpl implements CreateAppointmentUseCase {
 
         List<EmployeeEntity> employees = request.getEmployeeIDs()
                 .stream()
-                .map(employeeRepository::getReferenceById)
-                .toList();
+                .map(employeeRepository::findById)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
 
         AppointmentEntity appointment = AppointmentEntity.builder()
                 .clientName(request.getClientName())
