@@ -1,6 +1,7 @@
 package nl.fontys.sioux.siouxbackend.business.impl.appointment;
 
 import lombok.AllArgsConstructor;
+import nl.fontys.sioux.siouxbackend.business.exception.InvalidAppointmentException;
 import nl.fontys.sioux.siouxbackend.business.impl.employee.EmployeeConverter;
 import nl.fontys.sioux.siouxbackend.business.interf.appointment.GetAppointmentUseCase;
 import nl.fontys.sioux.siouxbackend.domain.DTO.GetAppointmentEmployeeDTO;
@@ -20,13 +21,13 @@ public class GetAppointmentUseCaseImpl implements GetAppointmentUseCase {
     @Override
     public GetAppointmentResponse getAppointment(Long id) {
         if(!appointmentRepository.existsById(id)){
-            // throw exception
+            throw new InvalidAppointmentException("APPOINTMENT_DOESNT_EXIST");
         }
 
         Optional<AppointmentEntity> optionalAppointment = appointmentRepository.findById(id);
 
         if(optionalAppointment.isEmpty()){
-            // throw exception
+            throw new InvalidAppointmentException("APPOINTMENT_DOESNT_EXIST");
         }
 
         AppointmentEntity appointment = optionalAppointment.get();
