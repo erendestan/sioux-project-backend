@@ -18,4 +18,14 @@ public interface AppointmentRepository extends JpaRepository<AppointmentEntity, 
             @Param("employeeIds") List<Long> employeeIds,
             @Param("startTime") Date startTime,
             @Param("endTime") Date endTime);
+
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM AppointmentEntity a " +
+            "JOIN a.employees e " +
+            "WHERE e.id IN :employeeIDs " +
+            "AND ((a.startTime BETWEEN :startTime AND :endTime) OR (a.endTime BETWEEN :startTime AND :endTime))")
+    boolean existsAppointmentForEmployeesInTimeRange(
+            @Param("employeeIDs") List<Long> employeeIDs,
+            @Param("startTime") Date startTime,
+            @Param("endTime") Date endTime
+    );
 }

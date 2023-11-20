@@ -14,8 +14,6 @@ import nl.fontys.sioux.siouxbackend.repository.entity.EmployeeEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @AllArgsConstructor
@@ -39,6 +37,9 @@ public class CreateAppointmentUseCaseImpl implements CreateAppointmentUseCase {
         }
         if(request.getStartTime().getTime() >= request.getEndTime().getTime()){
             throw new InvalidAppointmentException("INVALID_TIME");
+        }
+        if(appointmentRepository.existsAppointmentForEmployeesInTimeRange(request.getEmployeeIDs(), request.getStartTime(), request.getEndTime())) {
+            throw new InvalidAppointmentException("EMPLOYEE_TIMESLOT_ALREADY_TAKEN");
         }
 
         List<EmployeeEntity> employees = request.getEmployeeIDs()
