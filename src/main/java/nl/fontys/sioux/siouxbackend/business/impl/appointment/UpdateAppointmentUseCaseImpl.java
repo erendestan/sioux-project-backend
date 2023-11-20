@@ -13,6 +13,8 @@ import nl.fontys.sioux.siouxbackend.repository.entity.EmployeeEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,17 +35,28 @@ public class UpdateAppointmentUseCaseImpl implements UpdateAppointmentUseCase {
         if(!appointmentRepository.existsById(request.getAppointmentID())){
             throw new InvalidAppointmentException("APPOINTMENT_ID_INVALID");
         }
-        if(!request.getClientPhoneNumber().isEmpty() && !CustomRegexValidator.checkPhoneNumberValid(request.getClientPhoneNumber())){
+        if(request.getClientPhoneNumber() != null && !CustomRegexValidator.checkPhoneNumberValid(request.getClientPhoneNumber())){
             throw new InvalidAppointmentException("INVALID_CLIENT_PHONE_NUMBER");
         }
-        if(!request.getLicensePlate().isEmpty() && !CustomRegexValidator.checkLicensePlateValid(request.getLicensePlate())){
+        if(request.getLicensePlate() != null && !CustomRegexValidator.checkLicensePlateValid(request.getLicensePlate())){
             throw new InvalidAppointmentException("INVALID_CLIENT_LICENSE_PLATE");
         }
-        if(request.getStartTime().getTime() >= request.getEndTime().getTime()){
-            throw new InvalidAppointmentException("INVALID_TIME");
-        }
 
-        AppointmentEntity appointment = appointmentRepository.getReferenceById(request.getAppointmentID());
+        AppointmentEntity appointment = appointmentRepository.findById(request.getAppointmentID()).get();
+
+        if(request.getStartTime() != null && request.getEndTime() != null) {
+            if(request.getStartTime().getTime() >= request.getEndTime().getTime()){
+                throw new InvalidAppointmentException("INVALID_TIME");
+            }
+        } else if (request.getStartTime() != null){
+            if(request.getStartTime().getTime() >= appointment.getEndTime().getTime()){
+                throw new InvalidAppointmentException("INVALID_TIME");
+            }
+        } else if (request.getEndTime() != null) {
+            if(appointment.getStartTime().getTime() >= request.getEndTime().getTime()){
+                throw new InvalidAppointmentException("INVALID_TIME");
+            }
+        }
 
         if(request.getClientName() != null) { appointment.setClientName(request.getClientName()); }
 
@@ -62,10 +75,11 @@ public class UpdateAppointmentUseCaseImpl implements UpdateAppointmentUseCase {
         if(request.getEndTime() != null) { appointment.setEndTime(request.getEndTime()); }
 
         if(!request.getEmployeeIDs().isEmpty()) {
-            List<EmployeeEntity> employees = request.getEmployeeIDs()
+            List<Optional<EmployeeEntity>> employeesOptional = request.getEmployeeIDs()
                     .stream()
-                    .map(employeeRepository::getReferenceById)
+                    .map(employeeRepository::findById)
                     .toList();
+            List<EmployeeEntity> employees = employeesOptional.stream().flatMap(Optional::stream).collect(Collectors.toList());
             appointment.setEmployees(employees);
         }
 
