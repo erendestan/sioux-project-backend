@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
-    @ExceptionHandler(InvalidAppointmentException.class)
+    @ExceptionHandler(FailedSendEmailException.class)
     public ResponseEntity<String> handleFailedSendEmailException(FailedSendEmailException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
