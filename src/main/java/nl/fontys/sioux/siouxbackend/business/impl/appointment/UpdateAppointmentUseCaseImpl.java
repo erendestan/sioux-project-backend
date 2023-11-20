@@ -24,7 +24,7 @@ public class UpdateAppointmentUseCaseImpl implements UpdateAppointmentUseCase {
     @Transactional
     @Override
     public void updateAppointment(UpdateAppointmentRequest request) {
-        if(!request.getEmployeeIDs().isEmpty()){
+        if(request.getEmployeeIDs() != null){
             for (Long id: request.getEmployeeIDs()) {
                 if(!employeeRepository.existsById(id)) {
                     throw new InvalidEmployeeException("EMPLOYEE_ID_INVALID");
@@ -74,7 +74,7 @@ public class UpdateAppointmentUseCaseImpl implements UpdateAppointmentUseCase {
 
         if(request.getEndTime() != null) { appointment.setEndTime(request.getEndTime()); }
 
-        if(!request.getEmployeeIDs().isEmpty()) {
+        if(request.getEmployeeIDs() != null) {
             List<EmployeeEntity> employees = request.getEmployeeIDs()
                     .stream()
                     .map(employeeRepository::findById)

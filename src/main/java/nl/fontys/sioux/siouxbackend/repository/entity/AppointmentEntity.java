@@ -11,7 +11,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import java.util.Date;
 import java.util.List;
 
-@Builder
+@Builder(toBuilder = true)
 @Getter
 @Setter
 @AllArgsConstructor
