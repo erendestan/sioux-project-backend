@@ -38,8 +38,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(registry ->
                         // CORS pre-flight requests are public
                         registry.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                // Creating a user and login are public
-                                .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/signup", "/employee").permitAll()
+                                // Login is public
+                                .requestMatchers(HttpMethod.POST, "/login").permitAll()
                                 // Swagger is also public (in dev environment)
                                 .requestMatchers(SWAGGER_UI_RESOURCES).permitAll()
                                 // Everything else -> authentication required

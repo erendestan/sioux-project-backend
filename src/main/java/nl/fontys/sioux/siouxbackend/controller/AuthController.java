@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/login")
 @AllArgsConstructor
 public class AuthController {
     private final LoginUseCase loginUseCase;
-    @PostMapping("/login")
+    @PostMapping
     public ResponseEntity<AccessTokenResponse> login(@RequestBody @Valid LoginRequest request) {
         AccessTokenResponse accessTokenResponse = loginUseCase.login(request);
 
