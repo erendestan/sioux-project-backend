@@ -28,8 +28,11 @@ dependencies {
 	implementation 'com.microsoft.sqlserver:mssql-jdbc'
 	implementation group: 'com.opencsv', name: 'opencsv', version: '3.7'
 	implementation 'mysql:mysql-connector-java:8.0.33'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.cloud:spring-cloud-starter-bootstrap:4.0.4'
 	testImplementation 'com.playtika.testcontainers:embedded-mysql:3.0.0-RC9'
