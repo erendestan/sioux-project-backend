@@ -120,6 +120,10 @@ public class CreateAppointmentUseCaseImpl implements CreateAppointmentUseCase {
     private void sendEmployeesEmail(AppointmentEntity appointment){
         List<String> emails = getEmployeeEmails(appointment.getEmployees());
         String subject = "Appointment With Client Created!";
+        StringBuilder employeesList = new StringBuilder();
+        for (EmployeeEntity employee : appointment.getEmployees()) {
+            employeesList.append("<li>").append(employee.getFirstName()).append(" ").append(employee.getLastName()).append("</li>");
+        }
 
         String htmlTemplate = """
                 <html>
@@ -129,6 +133,10 @@ public class CreateAppointmentUseCaseImpl implements CreateAppointmentUseCase {
                                 
                         <h3>Appointment Details</h3>
                         <p>Client: %s</p>
+                        <p>Attendees: </p>
+                        <ul>
+                            %s
+                        </ul>
                         <p>Start Time: %s</p>
                         <p>End Time: %s</p>
                         <p>Location: %s</p>
@@ -137,7 +145,7 @@ public class CreateAppointmentUseCaseImpl implements CreateAppointmentUseCase {
                 </html>
                 """;
 
-        String emailBody = String.format(htmlTemplate, appointment.getClientName(), appointment.getStartTime().toString(), appointment.getEndTime().toString(), appointment.getLocation(), appointment.getDescription());
+        String emailBody = String.format(htmlTemplate, appointment.getClientName(), employeesList, appointment.getStartTime().toString(), appointment.getEndTime().toString(), appointment.getLocation(), appointment.getDescription());
         sendAppointmentEmailUseCase.sendAppointmentConfirmation(emails, subject, emailBody);
     }
 }
