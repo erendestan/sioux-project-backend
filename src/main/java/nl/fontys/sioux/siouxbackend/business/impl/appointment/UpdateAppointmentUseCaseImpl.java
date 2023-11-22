@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import nl.fontys.sioux.siouxbackend.business.exception.InvalidAppointmentException;
 import nl.fontys.sioux.siouxbackend.business.exception.InvalidEmployeeException;
+import nl.fontys.sioux.siouxbackend.business.interf.appointment.SendAppointmentEmailUseCase;
 import nl.fontys.sioux.siouxbackend.business.interf.appointment.UpdateAppointmentUseCase;
 import nl.fontys.sioux.siouxbackend.domain.request.appointment.UpdateAppointmentRequest;
 import nl.fontys.sioux.siouxbackend.repository.AppointmentRepository;
@@ -12,6 +13,7 @@ import nl.fontys.sioux.siouxbackend.repository.entity.AppointmentEntity;
 import nl.fontys.sioux.siouxbackend.repository.entity.EmployeeEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 public class UpdateAppointmentUseCaseImpl implements UpdateAppointmentUseCase {
     private final AppointmentRepository appointmentRepository;
     private final EmployeeRepository employeeRepository;
+    private final SendAppointmentEmailUseCase sendAppointmentEmailUseCase;
     @Transactional
     @Override
     public void updateAppointment(UpdateAppointmentRequest request) {
@@ -84,5 +87,73 @@ public class UpdateAppointmentUseCaseImpl implements UpdateAppointmentUseCase {
         }
 
         appointmentRepository.save(appointment);
+
+        sendClientEmail(appointment);
+        sendEmployeesEmail(appointment);
+    }
+
+    private List<String> getEmployeeEmails(List<EmployeeEntity> employeeEntities){
+        List<String> emails = new ArrayList<>();
+
+        for(EmployeeEntity emp: employeeEntities){
+            emails.add(emp.getEmail());
+        }
+
+        return emails;
+    }
+
+    private void sendClientEmail(AppointmentEntity appointment){
+        String subject = "Sioux Appointment Updated!";
+        StringBuilder employeesList = new StringBuilder();
+        for (EmployeeEntity employee : appointment.getEmployees()) {
+            employeesList.append("<li>").append(employee.getFirstName()).append(" ").append(employee.getLastName()).append("</li>");
+        }
+
+        String htmlTemplate = """
+                <html>
+                    <body>
+                        <h1>Updated Appointment</h1>
+                        <p>Dear %s, your appointment details has been changed. Below are the updated details.</p>
+                                
+                        <h3>Appointment Details</h3>
+                        <p>Attendees: </p>
+                        <ul>
+                            %s
+                        </ul>
+                        <p>Start Time: %s</p>
+                        <p>End Time: %s</p>
+                        <p>Location: %s</p>
+                        <p>Description: %s</p>
+                    </body>
+                </html>
+                """;
+
+        String emailBody = String.format(htmlTemplate, appointment.getClientName(), employeesList, appointment.getStartTime().toString(), appointment.getEndTime().toString(), appointment.getLocation(), appointment.getDescription());
+
+        sendAppointmentEmailUseCase.sendAppointmentConfirmation(List.of(appointment.getClientEmail()), subject, emailBody);
+    }
+
+    private void sendEmployeesEmail(AppointmentEntity appointment){
+        List<String> emails = getEmployeeEmails(appointment.getEmployees());
+        String subject = "Updated Appointment With Client";
+
+        String htmlTemplate = """
+                <html>
+                    <body>
+                        <h1>Updated Appointment</h1>
+                        <p>Dear Employee, your appointment details has been changed. Below are the updated details.</p>
+                                
+                        <h3>Appointment Details</h3>
+                        <p>Client: %s</p>
+                        <p>Start Time: %s</p>
+                        <p>End Time: %s</p>
+                        <p>Location: %s</p>
+                        <p>Description: %s</p>
+                    </body>
+                </html>
+                """;
+
+        String emailBody = String.format(htmlTemplate, appointment.getClientName(), appointment.getStartTime().toString(), appointment.getEndTime().toString(), appointment.getLocation(), appointment.getDescription());
+        sendAppointmentEmailUseCase.sendAppointmentConfirmation(emails, subject, emailBody);
     }
 }

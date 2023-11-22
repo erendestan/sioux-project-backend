@@ -68,7 +68,7 @@ public class CreateAppointmentUseCaseImpl implements CreateAppointmentUseCase {
         AppointmentEntity savedAppointment = appointmentRepository.save(appointment);
 
         sendClientEmail(savedAppointment);
-        sendEmployeesEmail(employees, savedAppointment);
+        sendEmployeesEmail(savedAppointment);
 
 
         return CreateAppointmentResponse.builder()
@@ -117,8 +117,8 @@ public class CreateAppointmentUseCaseImpl implements CreateAppointmentUseCase {
         sendAppointmentEmailUseCase.sendAppointmentConfirmation(List.of(appointment.getClientEmail()), subject, emailBody);
     }
 
-    private void sendEmployeesEmail(List<EmployeeEntity> employees, AppointmentEntity appointment){
-        List<String> emails = getEmployeeEmails(employees);
+    private void sendEmployeesEmail(AppointmentEntity appointment){
+        List<String> emails = getEmployeeEmails(appointment.getEmployees());
         String subject = "Appointment With Client Created!";
 
         String htmlTemplate = """
