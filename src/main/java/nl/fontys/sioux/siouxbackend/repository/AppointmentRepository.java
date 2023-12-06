@@ -28,4 +28,7 @@ public interface AppointmentRepository extends JpaRepository<AppointmentEntity, 
             @Param("startTime") Date startTime,
             @Param("endTime") Date endTime
     );
+
+    // Find appointment starting in the next hour for a specific license plate
+    Optional<AppointmentEntity> findFirstByStartTimeBetweenAndLicensePlate(Date start, Date end, String licensePlate);
 }
