@@ -1,4 +1,4 @@
-package nl.fontys.sioux.siouxbackend.business;
+package nl.fontys.sioux.siouxbackend.business.employee;
 
 import nl.fontys.sioux.siouxbackend.business.interf.employee.CreateEmployeesFromCsvUseCase;
 import nl.fontys.sioux.siouxbackend.domain.Position;
