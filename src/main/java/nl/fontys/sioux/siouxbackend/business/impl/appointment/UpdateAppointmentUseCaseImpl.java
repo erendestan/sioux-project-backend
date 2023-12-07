@@ -116,8 +116,8 @@ public class UpdateAppointmentUseCaseImpl implements UpdateAppointmentUseCase {
 
         if (!updatedEmployees.equals(initialEmployees) || !changedStartTime|| !changedEndTime|| !changedLocation||!changedDescription)
         {
-            sendClientEmail(appointment);
-            sendEmployeesEmail(employeesWithoutAdded, appointment);
+            sendClientEmail(appointment, request.getReason());
+            sendEmployeesEmail(employeesWithoutAdded, appointment, request.getReason());
         }
 
         if(!removedEmployees.isEmpty()){
@@ -139,7 +139,7 @@ public class UpdateAppointmentUseCaseImpl implements UpdateAppointmentUseCase {
         return emails;
     }
 
-    private void sendClientEmail(AppointmentEntity appointment){
+    private void sendClientEmail(AppointmentEntity appointment, String reason){
         String subject = "Sioux Appointment Updated!";
         StringBuilder employeesList = new StringBuilder();
         for (EmployeeEntity employee : appointment.getEmployees()) {
@@ -161,16 +161,17 @@ public class UpdateAppointmentUseCaseImpl implements UpdateAppointmentUseCase {
                         <p>End Time: %s</p>
                         <p>Location: %s</p>
                         <p>Description: %s</p>
+                        <p>Reason for Change: %s</p>
                     </body>
                 </html>
                 """;
 
-        String emailBody = String.format(htmlTemplate, appointment.getClientName(), employeesList, appointment.getStartTime().toString(), appointment.getEndTime().toString(), appointment.getLocation(), appointment.getDescription());
+        String emailBody = String.format(htmlTemplate, appointment.getClientName(), employeesList, appointment.getStartTime().toString(), appointment.getEndTime().toString(), appointment.getLocation(), appointment.getDescription(), !reason.isBlank()? reason:"Not specified");
 
         sendAppointmentEmailUseCase.sendAppointmentConfirmation(List.of(appointment.getClientEmail()), subject, emailBody);
     }
 
-    private void sendEmployeesEmail(List<EmployeeEntity> employeeEntities, AppointmentEntity appointment){
+    private void sendEmployeesEmail(List<EmployeeEntity> employeeEntities, AppointmentEntity appointment, String reason){
         List<String> emails = getEmployeeEmails(employeeEntities);
         String subject = "Updated Appointment With Client";
         StringBuilder employeesList = new StringBuilder();
@@ -194,11 +195,12 @@ public class UpdateAppointmentUseCaseImpl implements UpdateAppointmentUseCase {
                         <p>End Time: %s</p>
                         <p>Location: %s</p>
                         <p>Description: %s</p>
+                        <p>Reason for Change: %s</p>
                     </body>
                 </html>
                 """;
 
-        String emailBody = String.format(htmlTemplate, appointment.getClientName(), employeesList, appointment.getStartTime().toString(), appointment.getEndTime().toString(), appointment.getLocation(), appointment.getDescription());
+        String emailBody = String.format(htmlTemplate, appointment.getClientName(), employeesList, appointment.getStartTime().toString(), appointment.getEndTime().toString(), appointment.getLocation(), appointment.getDescription(), !reason.isBlank()? reason:"Not specified");
         sendAppointmentEmailUseCase.sendAppointmentConfirmation(emails, subject, emailBody);
     }
 

@@ -34,4 +34,5 @@ public class UpdateAppointmentRequest {
     private String description;
 
     private String licensePlate;
+    private String reason;
 }
