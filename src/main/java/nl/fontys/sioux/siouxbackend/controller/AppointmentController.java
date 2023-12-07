@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import nl.fontys.sioux.siouxbackend.business.interf.appointment.*;
 import nl.fontys.sioux.siouxbackend.domain.request.appointment.CreateAppointmentRequest;
+import nl.fontys.sioux.siouxbackend.domain.request.appointment.DeleteAppointmentRequest;
 import nl.fontys.sioux.siouxbackend.domain.request.appointment.GetSimplifiedAppointmentsRequest;
 import nl.fontys.sioux.siouxbackend.domain.request.appointment.UpdateAppointmentRequest;
 import nl.fontys.sioux.siouxbackend.domain.response.appointment.CreateAppointmentResponse;
@@ -43,9 +44,9 @@ public class AppointmentController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteAppointment(@PathVariable("id") Long id) {
-        deleteAppointmentUseCase.deleteAppointment(id);
+    @PostMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteAppointment(@PathVariable("id") Long id, @RequestBody@ Valid DeleteAppointmentRequest request) {
+        deleteAppointmentUseCase.deleteAppointment(id, request);
         return ResponseEntity.ok().build();
     }
 

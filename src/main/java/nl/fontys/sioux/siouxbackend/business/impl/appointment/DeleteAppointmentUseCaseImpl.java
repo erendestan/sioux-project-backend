@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import nl.fontys.sioux.siouxbackend.business.exception.InvalidAppointmentException;
 import nl.fontys.sioux.siouxbackend.business.interf.appointment.DeleteAppointmentUseCase;
 import nl.fontys.sioux.siouxbackend.business.interf.appointment.SendAppointmentEmailUseCase;
+import nl.fontys.sioux.siouxbackend.domain.request.appointment.DeleteAppointmentRequest;
 import nl.fontys.sioux.siouxbackend.repository.AppointmentRepository;
 import nl.fontys.sioux.siouxbackend.repository.entity.AppointmentEntity;
 import nl.fontys.sioux.siouxbackend.repository.entity.EmployeeEntity;
@@ -22,15 +23,15 @@ public class DeleteAppointmentUseCaseImpl implements DeleteAppointmentUseCase {
 
     @Transactional
     @Override
-    public void deleteAppointment(Long id){
+    public void deleteAppointment(Long id, DeleteAppointmentRequest request){
         if(!appointmentRepository.existsById(id)){
             throw new InvalidAppointmentException("APPOINTMENT_ID_INVALID");
         }
 
         AppointmentEntity appointment = appointmentRepository.findById(id).get();
 
-        sendClientEmail(appointment);
-        sendEmployeesEmail(appointment);
+        sendClientEmail(appointment, request);
+        sendEmployeesEmail(appointment, request);
 
         appointmentRepository.deleteById(id);
     }
@@ -45,7 +46,7 @@ public class DeleteAppointmentUseCaseImpl implements DeleteAppointmentUseCase {
         return emails;
     }
 
-    private void sendClientEmail(AppointmentEntity appointment){
+    private void sendClientEmail(AppointmentEntity appointment, DeleteAppointmentRequest request){
         String subject = "Sioux Appointment Cancelled";
         StringBuilder employeesList = new StringBuilder();
         for (EmployeeEntity employee : appointment.getEmployees()) {
@@ -67,16 +68,17 @@ public class DeleteAppointmentUseCaseImpl implements DeleteAppointmentUseCase {
                         <p>End Time: %s</p>
                         <p>Location: %s</p>
                         <p>Description: %s</p>
+                        <p>Reason for Cancellation: %s</p>
                     </body>
                 </html>
                 """;
 
-        String emailBody = String.format(htmlTemplate, appointment.getClientName(), employeesList, appointment.getStartTime().toString(), appointment.getEndTime().toString(), appointment.getLocation(), appointment.getDescription());
+        String emailBody = String.format(htmlTemplate, appointment.getClientName(), employeesList, appointment.getStartTime().toString(), appointment.getEndTime().toString(), appointment.getLocation(), appointment.getDescription(), !request.getReason().isBlank() ? request.getReason():"Not specified");
 
         sendAppointmentEmailUseCase.sendAppointmentConfirmation(List.of(appointment.getClientEmail()), subject, emailBody);
     }
 
-    private void sendEmployeesEmail(AppointmentEntity appointment){
+    private void sendEmployeesEmail(AppointmentEntity appointment, DeleteAppointmentRequest request){
         List<String> emails = getEmployeeEmails(appointment.getEmployees());
         String subject = "Appointment With Client Cancelled";
 
@@ -92,11 +94,12 @@ public class DeleteAppointmentUseCaseImpl implements DeleteAppointmentUseCase {
                         <p>End Time: %s</p>
                         <p>Location: %s</p>
                         <p>Description: %s</p>
+                        <p>Reason for Cancellation: %s</p>
                     </body>
                 </html>
                 """;
 
-        String emailBody = String.format(htmlTemplate, appointment.getClientName(), appointment.getStartTime().toString(), appointment.getEndTime().toString(), appointment.getLocation(), appointment.getDescription());
+        String emailBody = String.format(htmlTemplate, appointment.getClientName(), appointment.getStartTime().toString(), appointment.getEndTime().toString(), appointment.getLocation(), appointment.getDescription(), !request.getReason().isBlank() ? request.getReason():"Not specified");
         sendAppointmentEmailUseCase.sendAppointmentConfirmation(emails, subject, emailBody);
     }
 }

@@ -4,6 +4,7 @@ import nl.fontys.sioux.siouxbackend.business.exception.InvalidAppointmentExcepti
 import nl.fontys.sioux.siouxbackend.business.exception.InvalidEmployeeException;
 import nl.fontys.sioux.siouxbackend.business.impl.appointment.DeleteAppointmentUseCaseImpl;
 import nl.fontys.sioux.siouxbackend.domain.Position;
+import nl.fontys.sioux.siouxbackend.domain.request.appointment.DeleteAppointmentRequest;
 import nl.fontys.sioux.siouxbackend.domain.request.appointment.UpdateAppointmentRequest;
 import nl.fontys.sioux.siouxbackend.repository.AppointmentRepository;
 import nl.fontys.sioux.siouxbackend.repository.EmployeeRepository;
@@ -59,7 +60,9 @@ public class DeleteAppointmentUseCaseImplTest {
         when(appointmentRepositoryMock.existsById(1L))
                 .thenReturn(true);
 
-        deleteAppointmentUseCase.deleteAppointment(1L);
+        DeleteAppointmentRequest request = DeleteAppointmentRequest.builder().reason("sick").build();
+
+        deleteAppointmentUseCase.deleteAppointment(1L, request);
         verify(appointmentRepositoryMock).deleteById(any());
     }
 
@@ -68,7 +71,9 @@ public class DeleteAppointmentUseCaseImplTest {
         when(appointmentRepositoryMock.existsById(1L))
                 .thenReturn(false);
 
-        assertThrows(InvalidAppointmentException.class, () -> deleteAppointmentUseCase.deleteAppointment(1L));
+        DeleteAppointmentRequest request = DeleteAppointmentRequest.builder().reason("sick").build();
+
+        assertThrows(InvalidAppointmentException.class, () -> deleteAppointmentUseCase.deleteAppointment(1L, request));
         verify(appointmentRepositoryMock, never()).deleteById(any());
     }
 
