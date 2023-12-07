@@ -61,6 +61,11 @@ public class UpdateAppointmentUseCaseImpl implements UpdateAppointmentUseCase {
             }
         }
 
+        Boolean changedStartTime = request.getStartTime().equals(appointment.getStartTime());
+        Boolean changedEndTime = request.getEndTime().equals(appointment.getEndTime());
+        Boolean changedLocation = request.getLocation().equals(appointment.getLocation());
+        Boolean changedDescription = request.getDescription().equals(appointment.getDescription());
+
         if(request.getClientName() != null) { appointment.setClientName(request.getClientName()); }
 
         if(request.getClientEmail() != null) { appointment.setClientEmail(request.getClientEmail()); }
@@ -80,15 +85,15 @@ public class UpdateAppointmentUseCaseImpl implements UpdateAppointmentUseCase {
         List<EmployeeEntity> removedEmployees = new ArrayList<>();
         List<EmployeeEntity> addedEmployees;
         List<EmployeeEntity> employeesWithoutAdded = new ArrayList<>();
+        List<EmployeeEntity> updatedEmployees = request.getEmployeeIDs()
+                .stream()
+                .map(employeeRepository::findById)
+                .flatMap(Optional::stream)
+                .collect(Collectors.toList());
+
+        List<EmployeeEntity> initialEmployees = appointment.getEmployees();
 
         if(request.getEmployeeIDs() != null) {
-            List<EmployeeEntity> updatedEmployees = request.getEmployeeIDs()
-                    .stream()
-                    .map(employeeRepository::findById)
-                    .flatMap(Optional::stream)
-                    .collect(Collectors.toList());
-
-            List<EmployeeEntity> initialEmployees = appointment.getEmployees();
 
             removedEmployees = initialEmployees.stream()
                     .filter(employee -> !updatedEmployees.contains(employee))
@@ -109,8 +114,11 @@ public class UpdateAppointmentUseCaseImpl implements UpdateAppointmentUseCase {
 
         appointmentRepository.save(appointment);
 
-        sendClientEmail(appointment);
-        sendEmployeesEmail(employeesWithoutAdded, appointment);
+        if (!updatedEmployees.equals(initialEmployees) || !changedStartTime|| !changedEndTime|| !changedLocation||!changedDescription)
+        {
+            sendClientEmail(appointment);
+            sendEmployeesEmail(employeesWithoutAdded, appointment);
+        }
 
         if(!removedEmployees.isEmpty()){
             sendRemovedEmployeesEmail(removedEmployees, appointment);
