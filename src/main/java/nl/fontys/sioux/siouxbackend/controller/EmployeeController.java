@@ -51,6 +51,7 @@ public class EmployeeController {
         return ResponseEntity.ok().body(employee.get());
     }
 
+    @RolesAllowed({"Secretary", "Admin"})
     @GetMapping()
     public ResponseEntity<List<Employee>> getAllEmployees(){
         GetEmployeesResponse response = getEmployeesUseCase.getAllEmployees();
