@@ -28,10 +28,6 @@ public class CreateEmployeeRequest {
     @Length(min = 2, max = 50)
     private String email;
 
-    @NotBlank
-    @Length(min = 2)
-    private String password;
-
     @NotNull
     private Position position;
 }
