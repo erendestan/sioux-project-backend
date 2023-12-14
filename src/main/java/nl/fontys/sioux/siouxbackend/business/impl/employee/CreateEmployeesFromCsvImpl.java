@@ -47,6 +47,8 @@ public class CreateEmployeesFromCsvImpl implements CreateEmployeesFromCsvUseCase
                     .map(dto -> EmployeeEntity.builder()
                             .firstName(dto.getFirstName())
                             .lastName(dto.getLastName())
+                            .email(dto.getEmail())
+                            .position(dto.getPosition())
                             .password("notpasswordyet")
                             .active(true)
                             .build())
