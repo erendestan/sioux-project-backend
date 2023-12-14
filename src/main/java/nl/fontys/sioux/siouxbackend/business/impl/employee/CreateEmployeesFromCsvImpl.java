@@ -54,6 +54,7 @@ public class CreateEmployeesFromCsvImpl implements CreateEmployeesFromCsvUseCase
                             .build())
                     .toList();
 
+            int count = 0;
             for (EmployeeEntity employee: employeeEntities) {
                 if(!employeeRepository.existsByEmail(employee.getEmail()))
                 {
@@ -61,10 +62,11 @@ public class CreateEmployeesFromCsvImpl implements CreateEmployeesFromCsvUseCase
                     employee.setPassword(passwordEncoder.encode(generatedPassword));
                     employeeRepository.save(employee);
                     sendEmployeeEmail(employee, generatedPassword);
+                    count++;
                 }
             }
             return CreateEmployeesFromCsvResponse.builder()
-                    .count((long) employeeEntities.size())
+                    .count((long) count)
                     .build();
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
