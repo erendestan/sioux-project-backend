@@ -55,10 +55,13 @@ public class CreateEmployeesFromCsvImpl implements CreateEmployeesFromCsvUseCase
                     .toList();
 
             for (EmployeeEntity employee: employeeEntities) {
-                String generatedPassword = generator.generatePassword(12, lowerChars, upperChars, digitChars);
-                employee.setPassword(passwordEncoder.encode(generatedPassword));
-                employeeRepository.save(employee);
-                sendEmployeeEmail(employee, generatedPassword);
+                if(!employeeRepository.existsByEmail(employee.getEmail()))
+                {
+                    String generatedPassword = generator.generatePassword(12, lowerChars, upperChars, digitChars);
+                    employee.setPassword(passwordEncoder.encode(generatedPassword));
+                    employeeRepository.save(employee);
+                    sendEmployeeEmail(employee, generatedPassword);
+                }
             }
             return CreateEmployeesFromCsvResponse.builder()
                     .count((long) employeeEntities.size())
