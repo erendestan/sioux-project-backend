@@ -28,4 +28,7 @@ public interface AppointmentRepository extends JpaRepository<AppointmentEntity, 
             @Param("startTime") Date startTime,
             @Param("endTime") Date endTime
     );
+
+    Optional<AppointmentEntity> findAllByStartTimeBetween(Date start, Date end);
+
 }
