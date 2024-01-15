@@ -7,6 +7,7 @@ import nl.fontys.sioux.siouxbackend.domain.request.parking.ParkingAccessRequest;
 import nl.fontys.sioux.siouxbackend.repository.AppointmentRepository;
 import nl.fontys.sioux.siouxbackend.repository.entity.AppointmentEntity;
 import nl.fontys.sioux.siouxbackend.repository.entity.EmployeeEntity;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.springframework.stereotype.Service;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
@@ -34,17 +35,25 @@ public class SendMessagesUseCaseImpl implements SendMessagesUseCase {
         long oneHourInMillis = 60 * 60 * 1000; // 60 seconds/minute * 60 minutes/hour * 1000 milliseconds/second
         Date oneHourLater = new Date(now.getTime() + oneHourInMillis);
 
-        // Find appointment starting in the next hour for a specific license plate
-        Optional<AppointmentEntity> appointment = appointmentRepository.findFirstByStartTimeBetweenAndLicensePlate
-                (now, oneHourLater, request.getLicensePlate());
+//        // Find appointment starting in the next hour for a specific license plate
+//        Optional<AppointmentEntity> appointment = appointmentRepository.findFirstByStartTimeBetweenAndLicensePlate
+//                (now, oneHourLater, request.getLicensePlate());
 
-        if (appointment.isEmpty()) {
+        // Find appointment starting in the next hour for a specific license plate
+        Optional<AppointmentEntity> appointments = appointmentRepository.findAllByStartTimeBetween(now, oneHourLater);
+
+        Optional<AppointmentEntity> matchingAppointment = appointments.stream()
+                .filter(appointment -> isLicensePlateSimilar(request.getLicensePlate(), appointment.getLicensePlate()))
+                .findFirst();
+
+
+        if (matchingAppointment.isEmpty()) {
             return "No appointment found!";
         }
 
         if (request.isParkingTaken()) {
             // TODO: Send message to client to go to other parking lot
-            String clientPhoneNumber = appointment.get().getClientPhoneNumber();
+            String clientPhoneNumber = matchingAppointment.get().getClientPhoneNumber();
 
             Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
 
@@ -58,14 +67,14 @@ public class SendMessagesUseCaseImpl implements SendMessagesUseCase {
                     .create();
             System.out.println("Message SID: " + message.getSid());
 
-            sendEmployeesEmail(appointment.get(), request);
+            sendEmployeesEmail(matchingAppointment.get(), request);
             return "Sent message to client at: " + clientPhoneNumber;
         }
 
         // TODO OPTIONAL: Send message (or email) to employees in appointment that client has arrived
         //                (and maybe at which parking lot)
 
-        sendEmployeesEmail(appointment.get(), request);
+        sendEmployeesEmail(matchingAppointment.get(), request);
 
         return "Appointment found but parking not full.";
     }
@@ -118,5 +127,11 @@ public class SendMessagesUseCaseImpl implements SendMessagesUseCase {
         }
 
         return phoneNumber;
+    }
+
+    private boolean isLicensePlateSimilar(String plate1, String plate2) {
+        int distanceThreshold = 1; // You can adjust this threshold as needed
+        int distance =  LevenshteinDistance.getDefaultInstance().apply(plate1, plate2);
+        return distance <= distanceThreshold;
     }
 }
