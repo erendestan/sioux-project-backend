@@ -1,77 +1,97 @@
 package nl.fontys.sioux.siouxbackend.business.impl.employee;
 
-import com.opencsv.CSVReader;
+import com.opencsv.bean.CsvToBeanBuilder;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import nl.fontys.sioux.siouxbackend.business.exception.ImportCSVException;
 import nl.fontys.sioux.siouxbackend.business.interf.employee.CreateEmployeesFromCsvUseCase;
-import nl.fontys.sioux.siouxbackend.domain.Position;
+import nl.fontys.sioux.siouxbackend.business.interf.employee.SendNewEmployeeEmailUseCase;
+import nl.fontys.sioux.siouxbackend.domain.DTO.EmployeeCsvDTO;
 import nl.fontys.sioux.siouxbackend.domain.response.employee.CreateEmployeesFromCsvResponse;
 import nl.fontys.sioux.siouxbackend.repository.EmployeeRepository;
 import nl.fontys.sioux.siouxbackend.repository.entity.EmployeeEntity;
+import org.apache.commons.lang3.text.WordUtils;
+import org.passay.CharacterRule;
+import org.passay.EnglishCharacterData;
+import org.passay.PasswordGenerator;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 @AllArgsConstructor
 @Service
 public class CreateEmployeesFromCsvImpl implements CreateEmployeesFromCsvUseCase {
     private final EmployeeRepository employeeRepository;
+    private final PasswordEncoder passwordEncoder;
+    private SendNewEmployeeEmailUseCase sendNewEmployeeEmailUseCase;
+
     @Transactional
     @Override
-    public CreateEmployeesFromCsvResponse readCsvData(Path path) {
-        Long count = 0L;
-        try(Reader reader = Files.newBufferedReader(path)) {
-            try (CSVReader csvReader = new CSVReader(reader)) {
+    public CreateEmployeesFromCsvResponse readCsvData(Path csvFilePath) {
+        PasswordGenerator generator = new PasswordGenerator();
+        CharacterRule lowerChars = new CharacterRule(EnglishCharacterData.LowerCase);
+        CharacterRule upperChars = new CharacterRule(EnglishCharacterData.UpperCase);
+        CharacterRule digitChars = new CharacterRule(EnglishCharacterData.Digit);
 
-                String[] headers = csvReader.readNext();
-                String[] headerNames = {"first_name", "last_name", "email", "password", "position", "active"};
-                if(headers == null){
-                    throw new IOException("FILE_EMPTY");
-                }
+        try {
+            List<EmployeeCsvDTO> employeeCsvDTOList = new CsvToBeanBuilder<EmployeeCsvDTO>(new FileReader(csvFilePath.toString()))
+                    .withType(EmployeeCsvDTO.class)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .build()
+                    .parse();
 
-                if(headers.length != headerNames.length){
-                    throw new IOException("INCOMPLETE_DATA");
-                }
+            List<EmployeeEntity> employeeEntities = employeeCsvDTOList.stream()
+                    .map(dto -> EmployeeEntity.builder()
+                            .firstName(dto.getFirstName())
+                            .lastName(dto.getLastName())
+                            .email(dto.getEmail())
+                            .position(dto.getPosition())
+                            .password("notpasswordyet")
+                            .active(true)
+                            .build())
+                    .toList();
 
-                for(int i = 0 ; i < headerNames.length ; i ++) {
-                    if(!headers[i].equals(headerNames[i])) {
-                        throw new IOException("INVALID_DATA_FORMAT");
-                    }
-                }
-
-                String[] line;
-                while ((line = csvReader.readNext()) != null) {
-                    String positionCsv = line[4].trim();
-                    Position position = Position.valueOf(positionCsv);
-
-                    EmployeeEntity newEmployee = EmployeeEntity
-                            .builder()
-                            .firstName(line[0])
-                            .lastName(line[1])
-                            .email(line[2])
-                            .password(line[3])
-                            .position(position)
-                            .active(Boolean.parseBoolean(line[5]))
-                            .build();
-
-                    if(!employeeRepository.existsByEmail(newEmployee.getEmail())){
-                        employeeRepository.save(newEmployee);
-                        count++;
-                    }
+            int count = 0;
+            for (EmployeeEntity employee: employeeEntities) {
+                if(!employeeRepository.existsByEmail(employee.getEmail()))
+                {
+                    String generatedPassword = generator.generatePassword(12, lowerChars, upperChars, digitChars);
+                    employee.setPassword(passwordEncoder.encode(generatedPassword));
+                    employeeRepository.save(employee);
+                    sendEmployeeEmail(employee, generatedPassword);
+                    count++;
                 }
             }
+            return CreateEmployeesFromCsvResponse.builder()
+                    .count((long) count)
+                    .build();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
-        catch (IOException e) {
-            throw new ImportCSVException(e.getMessage());
-        }
-        return CreateEmployeesFromCsvResponse.builder()
-                .count(count)
-                .build();
+    }
+
+    private void sendEmployeeEmail(EmployeeEntity employee, String generatedPassword){
+        String subject = "Welcome to Sioux!";
+        String htmlTemplate = """
+                <html>
+                    <body>
+                        <h1>Sioux Account Created Confirmation</h1>
+                        <p>Dear %s, your new Sioux %s account has been created.</p>
+                                
+                        <h3>How to access your Sioux account:</h3>
+                        <p>Email: <b>%s</b></p>
+                        <p>Password: <b>%s</b></p>
+                    </body>
+                </html>
+                """;
+        String emailBody = String.format(htmlTemplate,
+                (employee.getFirstName() + " " + employee.getLastName()),
+                WordUtils.uncapitalize(String.valueOf(employee.getPosition())),
+                employee.getEmail(),
+                generatedPassword);
+        sendNewEmployeeEmailUseCase.sendEmployeeCreatedConfirmation(employee.getEmail(), subject, emailBody);
     }
 }

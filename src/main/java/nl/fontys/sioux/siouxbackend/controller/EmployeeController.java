@@ -87,7 +87,8 @@ public class EmployeeController {
 
             response = createEmployeesFromCsvUseCase.readCsvData(tempFilePath);
 
-            Files.delete(tempFilePath);
+            //this throws an IOException for some reason, it didn't before
+            //Files.delete(tempFilePath);
 
         } catch (IOException e){
             return ResponseEntity.badRequest().build();
